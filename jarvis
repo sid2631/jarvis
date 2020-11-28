@@ -1,0 +1,139 @@
+import pyttsx3
+import datetime
+import speech_recognition as sr 
+import wikipedia
+import smtplib
+import webbrowser as wb
+
+
+
+engine = pyttsx3.init()
+
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+
+def time_():
+    Time= datetime.datetime.now().strftime("%H:%M:%S")
+    speak("the current time is ")
+    speak(Time)
+
+
+def date_():
+    year=datetime.datetime.now().year
+    month=datetime.datetime.now().month
+    date=datetime.datetime.now().day
+    speak("current date is ")
+    speak(date)
+    speak(month)
+    speak(year)
+
+def wishme():
+    speak("welcome back sid")
+    time_()
+    date_()
+
+    hour=datetime.datetime.now().hour
+
+    if hour>=6 and hour<12:
+        speak("good morning sir")
+    elif hour>=12 and hour<18:
+        speak("good afternoon Sir")
+    elif hour>=18 and hour<24:
+        speak("good evening sir")
+    else:
+        speak("good night sir")
+    
+    speak("jarvis is at your service how can i help you sir?")
+
+
+
+def TakeCommand():
+    r=sr.Recognizer()
+    with sr.Microphone() as source:
+       print("Listning......")
+       r.pause_threshold = 1
+       audio = r.listen(source)
+    try:
+        print("Recognizing....")
+        quary = r.recognize_google(audio,language='en-US')
+        print(quary)
+
+    except Exception as e:
+        print(e)
+        print("say again please.....")
+        return "None"
+    return quary
+
+
+def sendEmail(to,content):
+    server=smtplib.SMTP('smtp.gmail.com',587)
+    server.ehlo()
+    server.starttls()
+    server.login('siddharth2631@gmail.com','8805504654')
+    server.sendmail('siddharth2631@gmail.com',to,content)
+    server.close()
+
+
+
+
+
+if __name__== "__main__":
+
+    wishme()
+
+    while True:
+        query = TakeCommand().lower()
+
+        if 'time' in query: 
+            time_()
+
+        if 'date' in query:
+            date_()
+
+        elif 'wikipedia' in query:
+            speak("searching.....")
+            query=query.replace('wikipedia','')
+            result=wikipedia.summary(query,sentences=3)
+            speak('acording to wikipedia')
+            print(result)
+            speak(result)
+        
+        elif 'send email' in query:
+            try:
+                speak("what should i say?")
+                content=TakeCommand()
+                speak("who is reciver")
+                reciever=input("enter reciver email")
+                to = reciever
+                sendEmail(to,content)
+                speak(content)
+                speak('email has been send')
+
+            except Exception as e:
+                print(e)
+                speak("unable to send email")
+        
+        
+        elif 'search in chrome' in query:
+            speak('what should i search?')
+            chromepath = 'C:\Program Files\Google\Chrome\Application\chrome.exe %s'
+
+            search = TakeCommand().lower()
+            wb.get(chromepath).open_new_tab(search+'.com')
+
+
+
+        elif 'search youtube' in query:
+            speak('what to search')
+            search_Term = TakeCommand().lower()
+            speak("here we go you tube")
+            wb.open('https://www.youtube.com/results/?search_query='+search_Term)
+              
+        elif 'search google' in query:
+            speak('what i search')
+            search_Term  =TakeCommand().lower()
+            speak('searching...')
+            wb.open('https://www.google.com/search?q='+search_Term)
